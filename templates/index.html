@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mitbringliste</title>
+    <!-- Font Awesome für Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <h1>Mitbringliste</h1>
+
+    <div class="table-container">
+    <table id="table">
+        <thead>
+            <tr>
+                <th>Was</th>
+                <th>Wer</th>
+                <th>Kommentar</th>
+                <th>Zeile löschen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+                <tr>
+                    <td contenteditable="true">{{ row.row1 }}</td>
+                    <td contenteditable="true">{{ row.row2 }}</td>
+                    <td contenteditable="true">{{ row.row3 }}</td>
+                    <td><button class="icon-remove" onclick="removeRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <div>
+        <button class="add-row-button" onclick="addRow()">Zeile hinzufügen</button>
+        <button class="save-button" onclick="saveData()">Daten speichern</button>
+    </div>
+
+    <script>
+        // Funktion zum Hinzufügen einer neuen Zeile
+        function addRow() {
+            var table = document.getElementById("table").getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow();
+            for (let i = 0; i < 3; i++) {
+                let newCell = newRow.insertCell(i);
+                newCell.contentEditable = true;
+                newCell.innerText = '';
+            }
+            let removeCell = newRow.insertCell(3);
+            removeCell.innerHTML = '<button class="icon-remove" onclick="removeRow(this)"><i class="fas fa-trash-alt"></i></button>';
+        }
+
+        // Funktion zum Entfernen einer Zeile
+        function removeRow(button) {
+            var row = button.closest("tr");
+            row.remove();
+        }
+
+        // Funktion zum Speichern der Änderungen
+        function saveData() {
+            var table = document.getElementById("table").getElementsByTagName('tbody')[0];
+            var data = [];
+            for (var i = 0; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                var rowData = {
+                    row1: row.cells[0].innerText,
+                    row2: row.cells[1].innerText,
+                    row3: row.cells[2].innerText
+                };
+                data.push(rowData);
+            }
+
+            // Sende die Daten als JSON an den Server
+            fetch('/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);  // Zeigt eine Bestätigungsmeldung
+            })
+            .catch(error => {
+                console.error('Fehler:', error);
+                alert('Fehler beim Speichern der Daten');
+            });
+        }
+    </script>
+
+</body>
+</html>
+
