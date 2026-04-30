@@ -10,7 +10,7 @@
 
 **Author:** [redcluster](https://github.com/redcluster)  
 **License:** [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html)  
-**Dates:** 04–05.12.2024, 20.10.2025
+**Dates:** 04–05.12.2024, 20.10.2025, 30.04.2026
 
 ---
 
@@ -51,7 +51,14 @@ mkdir ~/data
 podman run -d -p 5000:5000 -v ~/data:/app/data:z --name "table-app" localhost/table-app:latest
 ```
 
-4. Export the container image:
+Hint: Ensure correct volume access rights for `~/data`. On my installation the id of the user running the app is 100999. Easy way to find out user id: 
+1. `chmod 777 ~/data` 
+2. delete `~/data/table.json`
+2. write table data to create new `table.json` file by application 
+3. check id of `table.json` file
+4. set folder access rights (here for user with id 100999): `chown 100999:100999 data/`
+
+Optional: export the container image to file:
 `podman save -o table-app.tar.gz table-app:latest`
 
 ### 📦 Upload to GitHub Container Registry
@@ -71,4 +78,24 @@ podman push ghcr.io/redcluster/table-app:latest
 ```
 
 4. review: https://github.com/users/redcluster/packages/container/package/table-app
+
+### Compose file for dockge
+
+Hint: I'm using caddy on network named `web` to access table-app.
+
+```yaml
+services:
+  table-app:
+    image: ghcr.io/redcluster/table-app:latest
+    container_name: table-app
+    restart: unless-stopped
+    networks:
+      - web
+    volumes:
+      - ./data:/app/data
+networks:
+  web:
+    name: web
+    external: true
+```
 

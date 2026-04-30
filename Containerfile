@@ -2,11 +2,16 @@ FROM python:3.13-alpine
 
 WORKDIR /app
 
-COPY . .
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 5000
+COPY . .
 
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]
+RUN adduser -D appuser && chown -R appuser /app
+USER appuser
+
+CMD ["gunicorn", "--bind=0.0.0.0:5000", "app:app"]
 
