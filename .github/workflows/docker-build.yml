@@ -1,15 +1,15 @@
-name: Build and Push Docker Image
+name: Build, Scan and Push
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
+  build-and-scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write # Erlaubt das Pushen in ghcr.io
+      packages: write
 
     steps:
       - name: Checkout Repository
@@ -25,11 +25,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build and Push
+      # 1. Image lokal bauen (sucht automatisch nach ./Dockerfile)
+      - name: Build local image for scanning
         uses: docker/build-push-action@v7
         with:
           context: .
-          file: ./Containerfile
+          load: true
+          tags: local-image:scan
+
+      # 2. Trivy Scan
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'local-image:scan'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL'
+
+      # 3. Image nach GHCR pushen
+      - name: Push to GHCR
+        uses: docker/build-push-action@v7
+        with:
+          context: .
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/mein-image:latest
+

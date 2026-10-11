@@ -16,7 +16,7 @@
 
 ## 🧩 Dependencies
 
-- Base image: `python:3.13-alpine` (via Containerfile)
+- Base image: `python:3.13-alpine` (via Dockerfile)
 - Python packages: listed in `requirements.txt`
 - Icons: [Font Awesome](https://fontawesome.com) (MIT License)
 
