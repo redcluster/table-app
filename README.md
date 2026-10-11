@@ -98,4 +98,3 @@ networks:
     name: web
     external: true
 ```
-
