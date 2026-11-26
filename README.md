@@ -37,7 +37,7 @@ start app:
 
 Access it at: http://localhost:5000
 
-### 🐳 Run with Docker/Podman
+### 🐳 Build and run locally with Docker/Podman
 
 1. Update base image:
 `podman pull docker.io/library/python:3.13-alpine`
@@ -54,9 +54,9 @@ podman run -d -p 5000:5000 -v ~/data:/app/data:z --name "table-app" localhost/ta
 Hint: Ensure correct volume access rights for `~/data`. On my installation the id of the user running the app is 100999. Easy way to find out user id: 
 1. `chmod 777 ~/data` 
 2. delete `~/data/table.json`
-2. write table data to create new `table.json` file by application 
-3. check id of `table.json` file
-4. set folder access rights (here for user with id 100999): `chown 100999:100999 data/`
+3. write table data to create new `table.json` file by application 
+4. check id of `table.json` file
+5. set folder access rights (here for user with id 100999): `chown 100999:100999 data/`
 
 Optional: export the container image to file:
 `podman save -o table-app.tar.gz table-app:latest`
@@ -73,7 +73,7 @@ echo $CR_PAT | podman login ghcr.io -u USERNAME --password-stdin
 
 3. Tag and push image:
 ```bash
-podman tag localhost/table-app:latest ghcr.io/redcluster/table-app:latest`
+podman tag localhost/table-app:latest ghcr.io/redcluster/table-app:latest
 podman push ghcr.io/redcluster/table-app:latest
 ```
 
